@@ -78,7 +78,7 @@
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://anirudhy.github.io/TestProject1"/>
         <bt:Url id="Commands.Url" DefaultValue="https://anirudhy.github.io/TestProject1/commands.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://anirudhy.github.io/TestProject1/websocket.html?v=2"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://anirudhy.github.io/TestProject1/websocket.html?v=3"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="WebSocket Listener"/>

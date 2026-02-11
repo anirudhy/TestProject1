@@ -102,6 +102,10 @@
                         replaceText(command.search, command.replace);
                         break;
 
+                    case 'ping':
+                        handlePing();
+                        break;
+
                     default:
                         console.warn('Unknown command type:', command.type);
                 }
@@ -109,6 +113,28 @@
             } catch (error) {
                 console.error('Error parsing command:', error);
             }
+        }
+
+        // Handle ping command - write to document with timestamp at END
+        function handlePing() {
+            const timestamp = new Date().toISOString();
+            const pingMessage = `Ping received at ${timestamp}\n`;
+
+            console.log('📨 Ping received, writing to document end...');
+
+            // Use Word.js API to append at end of document
+            Word.run(async (context) => {
+                const body = context.document.body;
+                body.insertText(pingMessage, Word.InsertLocation.end);
+                await context.sync();
+
+                console.log('✅ Ping message appended to document');
+                sendResponse({ success: true, action: 'ping', timestamp: timestamp });
+
+            }).catch((error) => {
+                console.error('❌ Failed to write ping:', error);
+                sendResponse({ success: false, error: error.message });
+            });
         }
 
         // Insert text at current cursor position
