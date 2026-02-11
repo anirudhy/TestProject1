@@ -77,6 +77,11 @@
     <button id="disableBtn">Disable auto-open for this document</button>
     <div id="status">Status: Loading...</div>
 
-    <script src="taskpane.js?v=2"></script>
+    <script>
+        // Force fresh load by adding timestamp
+        const script = document.createElement('script');
+        script.src = 'taskpane.js?t=' + new Date().getTime();
+        document.body.appendChild(script);
+    </script>
 </body>
 </html>
