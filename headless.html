@@ -9,30 +9,25 @@
         body {
             margin: 0;
             padding: 0;
-            background: transparent;
+            background: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 10px;
-            color: #666;
-            text-align: center;
-            padding-top: 20px;
+            font-size: 12px;
+            color: #333;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <div>Running...</div>
+    <div id="status">Writing birthday message...</div>
     <script>
-        // Headless add-in - auto-writes birthday message
+        // Headless add-in - auto-writes birthday message then closes
         Office.onReady((info) => {
             if (info.host === Office.HostType.Word) {
-                writeBirthdayMessage();
-
-                // Auto-enable auto-open so it runs every time
-                Office.context.document.settings.set('Office.AutoShowTaskpaneWithDocument', true);
-                Office.context.document.settings.saveAsync();
+                writeBirthdayMessageAndClose();
             }
         });
 
-        function writeBirthdayMessage() {
+        function writeBirthdayMessageAndClose() {
             const birthdayText = `🎉🎂 HAPPY BIRTHDAY! 🎂🎉
 
 Wishing you a day filled with happiness and a year filled with joy!
@@ -49,9 +44,19 @@ Your Office Add-in`;
                 { coercionType: Office.CoercionType.Text },
                 (result) => {
                     if (result.status === Office.AsyncResultStatus.Succeeded) {
-                        document.body.innerHTML = '<div>✅ Done</div>';
+                        document.getElementById('status').textContent = '✅ Birthday message written!';
+
+                        // Auto-enable auto-open for next time
+                        Office.context.document.settings.set('Office.AutoShowTaskpaneWithDocument', true);
+                        Office.context.document.settings.saveAsync();
+
+                        // Close the task pane after 100ms
+                        setTimeout(() => {
+                            // Request to close the task pane
+                            Office.context.ui.closeContainer();
+                        }, 100);
                     } else {
-                        document.body.innerHTML = '<div>❌ Error</div>';
+                        document.getElementById('status').textContent = '❌ Error: ' + result.error.message;
                     }
                 }
             );
