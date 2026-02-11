@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Auto-open Add-in</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #0078d4;
+        }
+        .download-section {
+            background-color: #f3f2f1;
+            border-left: 4px solid #0078d4;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background-color: #f3f2f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word Auto-open Add-in</h1>
+
+    <p>A minimal Word Office Add-in demonstrating auto-open task pane functionality for Word on the web.</p>
+
+    <div class="download-section">
+        <h2>📥 Install Add-in</h2>
+        <p><strong>Manifest URL:</strong> <code id="manifestUrl"></code></p>
+        <p><a href="manifest.xml" download>Download manifest.xml</a></p>
+    </div>
+
+    <h2>🚀 Installation Steps</h2>
+    <ol>
+        <li>Download the <a href="manifest.xml">manifest.xml</a> file</li>
+        <li>Go to <a href="https://office.com" target="_blank">office.com</a> and sign in</li>
+        <li>Create or open a Word document</li>
+        <li>Click <strong>Insert</strong> → <strong>Add-ins</strong></li>
+        <li>Click <strong>Upload My Add-in</strong> (top-right corner)</li>
+        <li>Upload the downloaded manifest.xml file</li>
+        <li>Click the "Show Taskpane" button in the Home ribbon</li>
+    </ol>
+
+    <h2>✨ How to Use</h2>
+    <ol>
+        <li>Open the task pane by clicking the ribbon button</li>
+        <li>Click <strong>"Enable auto-open for this document"</strong></li>
+        <li>Close the browser tab</li>
+        <li>Reopen the same document</li>
+        <li>✅ The task pane will automatically open!</li>
+    </ol>
+
+    <h2>📖 Documentation</h2>
+    <p>View the full source code and documentation on <a href="https://github.com/anirudhy/word-autoopen-addin" target="_blank">GitHub</a></p>
+
+    <script>
+        // Display the current page's manifest URL
+        const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+        document.getElementById('manifestUrl').textContent = baseUrl + 'manifest.xml';
+    </script>
+</body>
+</html>

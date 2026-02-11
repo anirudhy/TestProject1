@@ -1,0 +1,16 @@
+{
+  "name": "word-autoopen-addin",
+  "version": "1.0.0",
+  "description": "Minimal Word add-in with auto-open task pane",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "cert": "npx office-addin-dev-certs install"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "office-addin-dev-certs": "^1.13.2"
+  }
+}
