@@ -10,8 +10,8 @@
   <Version>1.0.0.0</Version>
   <ProviderName>Contoso</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Auto-open Test Add-in"/>
-  <Description DefaultValue="Test add-in for auto-opening task pane"/>
+  <DisplayName DefaultValue="Birthday Message (Headless)"/>
+  <Description DefaultValue="Automatically writes birthday message - minimal UI"/>
   <IconUrl DefaultValue="https://anirudhy.github.io/TestProject1/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://anirudhy.github.io/TestProject1/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://anirudhy.github.io/TestProject1"/>
@@ -22,7 +22,7 @@
     <Host Name="Document"/>
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://anirudhy.github.io/TestProject1/taskpane.html"/>
+    <SourceLocation DefaultValue="https://anirudhy.github.io/TestProject1/headless.html"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 
@@ -76,7 +76,7 @@
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://anirudhy.github.io/TestProject1"/>
         <bt:Url id="Commands.Url" DefaultValue="https://anirudhy.github.io/TestProject1/commands.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://anirudhy.github.io/TestProject1/taskpane.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://anirudhy.github.io/TestProject1/headless.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Auto-open Test"/>

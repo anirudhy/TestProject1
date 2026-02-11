@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Message (Headless)</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div>Running...</div>
+    <script>
+        // Headless add-in - auto-writes birthday message
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Word) {
+                writeBirthdayMessage();
+
+                // Auto-enable auto-open so it runs every time
+                Office.context.document.settings.set('Office.AutoShowTaskpaneWithDocument', true);
+                Office.context.document.settings.saveAsync();
+            }
+        });
+
+        function writeBirthdayMessage() {
+            const birthdayText = `🎉🎂 HAPPY BIRTHDAY! 🎂🎉
+
+Wishing you a day filled with happiness and a year filled with joy!
+
+May all your dreams and wishes come true on this special day.
+
+Have a wonderful birthday celebration!
+
+With love and best wishes,
+Your Office Add-in`;
+
+            Office.context.document.setSelectedDataAsync(
+                birthdayText,
+                { coercionType: Office.CoercionType.Text },
+                (result) => {
+                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                        document.body.innerHTML = '<div>✅ Done</div>';
+                    } else {
+                        document.body.innerHTML = '<div>❌ Error</div>';
+                    }
+                }
+            );
+        }
+    </script>
+</body>
+</html>
