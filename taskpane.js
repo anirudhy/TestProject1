@@ -13,12 +13,8 @@ Office.onReady((info) => {
 });
 
 function writeBirthdayMessage() {
-    Word.run(async (context) => {
-        // Get the current selection or end of document
-        const selection = context.document.getSelection();
-
-        // Create the birthday message
-        const birthdayText = `🎉🎂 HAPPY BIRTHDAY! 🎂🎉
+    // Use Office.context.document.setSelectedDataAsync for simpler API
+    const birthdayText = `🎉🎂 HAPPY BIRTHDAY! 🎂🎉
 
 Wishing you a day filled with happiness and a year filled with joy!
 
@@ -29,39 +25,32 @@ Have a wonderful birthday celebration!
 With love and best wishes,
 Your Office Add-in`;
 
-        // Insert the text at the selection
-        selection.insertText(birthdayText, Word.InsertLocation.replace);
+    Office.context.document.setSelectedDataAsync(
+        birthdayText,
+        { coercionType: Office.CoercionType.Text },
+        (result) => {
+            const statusDiv = document.getElementById('status');
 
-        // Format the text
-        selection.font.size = 14;
-        selection.font.color = '#0078d4';
-        selection.font.bold = true;
+            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                // Show success message
+                const originalClass = statusDiv.className;
+                const originalText = statusDiv.textContent;
 
-        // Sync to apply changes
-        await context.sync();
+                statusDiv.textContent = '✅ Birthday message written successfully!';
+                statusDiv.className = 'status-enabled';
 
-        // Show success message
-        const statusDiv = document.getElementById('status');
-        const originalClass = statusDiv.className;
-        const originalText = statusDiv.textContent;
-
-        statusDiv.textContent = '✅ Birthday message written successfully!';
-        statusDiv.className = 'status-enabled';
-
-        // Restore original status after 3 seconds
-        setTimeout(() => {
-            statusDiv.textContent = originalText;
-            statusDiv.className = originalClass;
-        }, 3000);
-
-    }).catch((error) => {
-        console.error('Error writing birthday message:', error);
-
-        // Show error in status div instead of alert
-        const statusDiv = document.getElementById('status');
-        statusDiv.textContent = '❌ Failed to write birthday message';
-        statusDiv.className = 'status-disabled';
-    });
+                // Restore original status after 3 seconds
+                setTimeout(() => {
+                    statusDiv.textContent = originalText;
+                    statusDiv.className = originalClass;
+                }, 3000);
+            } else {
+                console.error('Error writing birthday message:', result.error.message);
+                statusDiv.textContent = '❌ Failed to write birthday message';
+                statusDiv.className = 'status-disabled';
+            }
+        }
+    );
 }
 
 function enableAutoOpen() {
