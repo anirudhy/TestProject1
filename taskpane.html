@@ -34,6 +34,22 @@
         button:active {
             background-color: #005a9e;
         }
+        .birthday-btn {
+            background-color: #107c10;
+            border-color: #107c10;
+            margin-top: 20px;
+        }
+        .birthday-btn:hover {
+            background-color: #0e6b0e;
+        }
+        .birthday-btn:active {
+            background-color: #0c5a0c;
+        }
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e1dfdd;
+        }
         #status {
             margin-top: 20px;
             padding: 10px;
@@ -52,6 +68,11 @@
 </head>
 <body>
     <h1>Auto-open Test</h1>
+
+    <button id="birthdayBtn" class="birthday-btn">🎉 Write Happy Birthday Message</button>
+
+    <hr>
+
     <button id="enableBtn">Enable auto-open for this document</button>
     <button id="disableBtn">Disable auto-open for this document</button>
     <div id="status">Status: Loading...</div>
