@@ -39,19 +39,25 @@
         });
 
         function connectWebSocket() {
-            // Replace with your WebSocket server URL
-            const wsUrl = 'wss://your-backend.com/ws';
+            // Using public WebSocket echo server for testing
+            const wsUrl = 'wss://echo.websocket.org/';
 
             try {
                 ws = new WebSocket(wsUrl);
 
                 ws.onopen = () => {
-                    console.log('✅ WebSocket connected');
-                    // Send authentication or document ID if needed
-                    ws.send(JSON.stringify({
-                        type: 'init',
-                        documentId: getDocumentId()
-                    }));
+                    console.log('✅ WebSocket connected to echo server');
+
+                    // Test: Send a command to insert text
+                    // The echo server will send it back, triggering our handler
+                    setTimeout(() => {
+                        const testCommand = {
+                            type: 'insertText',
+                            text: '🎉 WebSocket Test Successful! Connected to echo.websocket.org'
+                        };
+                        console.log('📤 Sending test command:', testCommand);
+                        ws.send(JSON.stringify(testCommand));
+                    }, 1000);
                 };
 
                 ws.onmessage = (event) => {
