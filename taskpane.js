@@ -18,8 +18,7 @@ function writeBirthdayMessage() {
         const selection = context.document.getSelection();
 
         // Create the birthday message
-        const birthdayText = `
-🎉🎂 HAPPY BIRTHDAY! 🎂🎉
+        const birthdayText = `🎉🎂 HAPPY BIRTHDAY! 🎂🎉
 
 Wishing you a day filled with happiness and a year filled with joy!
 
@@ -28,8 +27,7 @@ May all your dreams and wishes come true on this special day.
 Have a wonderful birthday celebration!
 
 With love and best wishes,
-Your Office Add-in
-`;
+Your Office Add-in`;
 
         // Insert the text at the selection
         selection.insertText(birthdayText, Word.InsertLocation.replace);
@@ -38,7 +36,6 @@ Your Office Add-in
         selection.font.size = 14;
         selection.font.color = '#0078d4';
         selection.font.bold = true;
-        selection.paragraphs.first.alignment = Word.Alignment.centered;
 
         // Sync to apply changes
         await context.sync();
@@ -59,7 +56,11 @@ Your Office Add-in
 
     }).catch((error) => {
         console.error('Error writing birthday message:', error);
-        alert('Failed to write birthday message: ' + error.message);
+
+        // Show error in status div instead of alert
+        const statusDiv = document.getElementById('status');
+        statusDiv.textContent = '❌ Failed to write birthday message';
+        statusDiv.className = 'status-disabled';
     });
 }
 
@@ -69,7 +70,10 @@ function enableAutoOpen() {
         if (result.status === Office.AsyncResultStatus.Succeeded) {
             updateStatus();
         } else {
-            alert('Failed to save setting: ' + result.error.message);
+            console.error('Failed to save setting:', result.error.message);
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = '❌ Failed to save auto-open setting';
+            statusDiv.className = 'status-disabled';
         }
     });
 }
@@ -80,7 +84,10 @@ function disableAutoOpen() {
         if (result.status === Office.AsyncResultStatus.Succeeded) {
             updateStatus();
         } else {
-            alert('Failed to save setting: ' + result.error.message);
+            console.error('Failed to save setting:', result.error.message);
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = '❌ Failed to save auto-open setting';
+            statusDiv.className = 'status-disabled';
         }
     });
 }
