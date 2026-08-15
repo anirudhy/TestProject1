@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passive Income Calculator</title>
+<style>
+    :root {
+        --accent: #0f9d58;
+        --accent-dark: #0b7a43;
+        --bg: #f6f8fa;
+        --card: #ffffff;
+        --text: #1a1a1a;
+        --muted: #5f6b76;
+        --border: #e1e5ea;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 30px 16px 60px;
+        line-height: 1.5;
+    }
+    .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+    }
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 4px;
+    }
+    .subtitle {
+        color: var(--muted);
+        margin-top: 0;
+        margin-bottom: 28px;
+    }
+    .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    @media (max-width: 720px) {
+        .layout { grid-template-columns: 1fr; }
+    }
+    .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 22px 24px;
+    }
+    .card h2 {
+        font-size: 1.05rem;
+        margin-top: 0;
+        margin-bottom: 18px;
+    }
+    label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+        margin-top: 14px;
+    }
+    label:first-of-type { margin-top: 0; }
+    .input-row {
+        position: relative;
+    }
+    input[type="number"], input[type="range"] {
+        width: 100%;
+        font-size: 1rem;
+        padding: 9px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #fbfbfc;
+        color: var(--text);
+    }
+    input[type="number"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: #fff;
+    }
+    input[type="range"] {
+        padding: 0;
+        margin-top: 6px;
+        accent-color: var(--accent);
+    }
+    .range-value {
+        float: right;
+        font-weight: 600;
+        color: var(--accent-dark);
+    }
+    .results-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 6px;
+    }
+    .stat {
+        background: #f0f9f4;
+        border: 1px solid #d7ecdf;
+        border-radius: 8px;
+        padding: 14px 16px;
+    }
+    .stat.highlight {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        grid-column: 1 / -1;
+    }
+    .stat .label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        opacity: 0.75;
+        margin-bottom: 4px;
+    }
+    .stat .value {
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+    .stat.highlight .value {
+        font-size: 1.7rem;
+    }
+    canvas {
+        width: 100%;
+        height: 220px;
+        margin-top: 18px;
+        display: block;
+    }
+    .breakdown {
+        margin-top: 18px;
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+    .breakdown div {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+    }
+    .breakdown span:last-child {
+        color: var(--text);
+        font-weight: 600;
+    }
+    footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin-top: 30px;
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>💰 Passive Income Calculator</h1>
+    <p class="subtitle">Estimate how your investments could grow into a monthly passive income stream.</p>
+
+    <div class="layout">
+        <div class="card">
+            <h2>Your Investment Plan</h2>
+
+            <label for="initial">Initial Investment ($)</label>
+            <div class="input-row">
+                <input type="number" id="initial" value="10000" min="0" step="100">
+            </div>
+
+            <label for="monthly">Monthly Contribution ($)</label>
+            <div class="input-row">
+                <input type="number" id="monthly" value="500" min="0" step="10">
+            </div>
+
+            <label for="years">Investment Period (years) <span class="range-value" id="yearsVal">20</span></label>
+            <input type="range" id="years" min="1" max="50" value="20">
+
+            <label for="returnRate">Expected Annual Return (%) <span class="range-value" id="returnVal">7.0</span></label>
+            <input type="range" id="returnRate" min="0" max="20" step="0.1" value="7">
+
+            <label for="yieldRate">Passive Income Yield Rate (%) <span class="range-value" id="yieldVal">4.0</span></label>
+            <input type="range" id="yieldRate" min="0.5" max="12" step="0.1" value="4">
+        </div>
+
+        <div class="card">
+            <h2>Projected Results</h2>
+            <div class="results-grid">
+                <div class="stat">
+                    <div class="label">Future Portfolio Value</div>
+                    <div class="value" id="futureValue">$0</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Total Growth (Interest)</div>
+                    <div class="value" id="totalGrowth">$0</div>
+                </div>
+                <div class="stat highlight">
+                    <div class="label">Estimated Monthly Passive Income</div>
+                    <div class="value" id="monthlyIncome">$0</div>
+                </div>
+            </div>
+
+            <div class="breakdown">
+                <div><span>Total contributed</span><span id="totalContributed">$0</span></div>
+                <div><span>Estimated annual passive income</span><span id="annualIncome">$0</span></div>
+            </div>
+
+            <canvas id="chart" width="600" height="220"></canvas>
+        </div>
+    </div>
+
+    <footer>Estimates are for planning purposes only and are not financial advice.</footer>
+</div>
+
+<script>
+(function () {
+    const $ = id => document.getElementById(id);
+    const initialEl = $('initial');
+    const monthlyEl = $('monthly');
+    const yearsEl = $('years');
+    const returnEl = $('returnRate');
+    const yieldEl = $('yieldRate');
+
+    const fmtMoney = n => '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+    function computeSeries(initial, monthlyContribution, years, annualRatePct) {
+        const monthlyRate = annualRatePct / 100 / 12;
+        const points = [];
+        let balance = initial;
+        points.push(balance);
+        for (let m = 1; m <= years * 12; m++) {
+            balance = balance * (1 + monthlyRate) + monthlyContribution;
+            if (m % 12 === 0) points.push(balance);
+        }
+        return points;
+    }
+
+    function drawChart(points) {
+        const canvas = $('chart');
+        const dpr = window.devicePixelRatio || 1;
+        const cssWidth = canvas.clientWidth || 600;
+        const cssHeight = 220;
+        canvas.width = cssWidth * dpr;
+        canvas.height = cssHeight * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+        const padding = { top: 10, right: 10, bottom: 20, left: 10 };
+        const w = cssWidth - padding.left - padding.right;
+        const h = cssHeight - padding.top - padding.bottom;
+        const max = Math.max(...points) * 1.05;
+
+        // gridline
+        ctx.strokeStyle = '#e1e5ea';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, padding.top + h);
+        ctx.lineTo(padding.left + w, padding.top + h);
+        ctx.stroke();
+
+        // area + line
+        ctx.beginPath();
+        points.forEach((p, i) => {
+            const x = padding.left + (i / (points.length - 1)) * w;
+            const y = padding.top + h - (p / max) * h;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.lineTo(padding.left + w, padding.top + h);
+        ctx.lineTo(padding.left, padding.top + h);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(15, 157, 88, 0.12)';
+        ctx.fill();
+
+        ctx.beginPath();
+        points.forEach((p, i) => {
+            const x = padding.left + (i / (points.length - 1)) * w;
+            const y = padding.top + h - (p / max) * h;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#0f9d58';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function update() {
+        const initial = parseFloat(initialEl.value) || 0;
+        const monthlyContribution = parseFloat(monthlyEl.value) || 0;
+        const years = parseInt(yearsEl.value, 10);
+        const returnRate = parseFloat(returnEl.value);
+        const yieldRate = parseFloat(yieldEl.value);
+
+        $('yearsVal').textContent = years;
+        $('returnVal').textContent = returnRate.toFixed(1);
+        $('yieldVal').textContent = yieldRate.toFixed(1);
+
+        const points = computeSeries(initial, monthlyContribution, years, returnRate);
+        const futureValue = points[points.length - 1];
+        const totalContributed = initial + monthlyContribution * years * 12;
+        const totalGrowth = futureValue - totalContributed;
+        const annualIncome = futureValue * (yieldRate / 100);
+        const monthlyIncome = annualIncome / 12;
+
+        $('futureValue').textContent = fmtMoney(futureValue);
+        $('totalGrowth').textContent = fmtMoney(totalGrowth);
+        $('totalContributed').textContent = fmtMoney(totalContributed);
+        $('annualIncome').textContent = fmtMoney(annualIncome);
+        $('monthlyIncome').textContent = fmtMoney(monthlyIncome);
+
+        drawChart(points);
+    }
+
+    [initialEl, monthlyEl, yearsEl, returnEl, yieldEl].forEach(el => {
+        el.addEventListener('input', update);
+    });
+    window.addEventListener('resize', update);
+
+    update();
+})();
+</script>
+</body>
+</html>
