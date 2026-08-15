@@ -63,8 +63,11 @@ per the spec's own recommendation in each case:
 
 1. **Anonymous browsing vs. sign-in wall** — fully open browsing, no wall.
    Everything under `/companies`, `/compare`, `/benefits`, `/calculator` renders
-   with no session. Sign-in is intended to gate `/contribute` and `/admin`
-   specifically — not yet enforced, since auth isn't wired up (see above).
+   with no session. `/contribute` requires sign-in against a real Supabase
+   project (enforced in `app/contribute/page.tsx` and `app/api/edits/route.ts`);
+   `/admin/**` requires a moderator/admin role (enforced in `middleware.ts`,
+   with a redundant check in `app/admin/queue/page.tsx`). Neither check applies
+   in demo mode, since there's no session concept without a real project.
 2. **International plan variants** — `company_benefits.country` added
    (migration `0008_country_dimension.sql`), `text not null default 'US'`. Unused
    beyond the default until non-US data exists.
@@ -101,11 +104,17 @@ per the spec's own recommendation in each case:
   `company_benefits` row cannot exist without a `benefit_sources` row (enforced by a
   deferred constraint trigger, not application code — see
   `supabase/migrations/0003_source_enforcement.sql`).
-- **Auth is not wired up.** Phase 0 calls for Supabase Auth magic-link sign-in; this
-  repo doesn't implement it. `/admin/queue` and the edit approve/reject API routes
-  currently trust a client-supplied reviewer id — see the comment in
-  `app/api/edits/[id]/approve/route.ts`. Do not deploy without adding a real
-  session check and RLS-backed role verification first.
+- **Auth is wired up: Supabase Auth magic-link sign-in.** `/sign-in` requests a
+  one-time email link (`supabase.auth.signInWithOtp`); `/auth/callback` exchanges
+  the code for a session; `auth.users` inserts auto-create a `profiles` row via a
+  DB trigger (migration `0009_auto_create_profile.sql`) with a generated
+  pseudonymous handle and `role = 'user'`. `middleware.ts` refreshes the session
+  cookie and redirects unauthorized requests away from `/admin/**`; the
+  approve/reject/submit-edit API routes derive the acting user from the session
+  server-side (`lib/db/supabase-server.ts`) and never trust a client-supplied id.
+  **Promoting a user to `moderator`/`admin` is a manual `update profiles set
+  role = 'moderator' where id = '...'` in the Supabase SQL editor** — there is
+  intentionally no self-service role escalation UI.
 - **Seed data is fictional**, for the reasons above.
 - **Sentry/PostHog/Resend are declared as dependencies** (per the spec's stack) but
   not yet initialized — there's no real error/analytics/email traffic to send from a

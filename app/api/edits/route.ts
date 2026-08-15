@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getBenefitType, zodForBenefitType } from "@/lib/benefits/registry";
-import { getBenefitsForCompany, submitEdit, usingLocalStore } from "@/lib/db/queries";
-import { localStore } from "@/lib/db/local-store";
+import { getBenefitsForCompany, submitEdit } from "@/lib/db/queries";
+import { currentContributorId } from "@/lib/db/supabase-server";
+import { isSupabaseConfigured } from "@/lib/db/client";
 
 const requestSchema = z.object({
   companyId: z.string().min(1),
@@ -15,6 +16,14 @@ const requestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const submittedBy = await currentContributorId();
+  // Demo mode always has a stand-in contributor; against a real Supabase
+  // project, submitting requires a session (§9 open question #1: sign-in
+  // only to contribute, browsing stays open).
+  if (isSupabaseConfigured() && !submittedBy) {
+    return NextResponse.json({ error: "Sign in to submit a contribution." }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
@@ -40,8 +49,6 @@ export async function POST(request: Request) {
 
   const existingBenefits = await getBenefitsForCompany(companyId);
   const current = existingBenefits.find((b) => b.benefit_key === benefitKey && b.plan_year === planYear);
-
-  const submittedBy = usingLocalStore() ? localStore.getOrCreateDemoProfile().id : null;
 
   const edit = await submitEdit({
     company_id: companyId,

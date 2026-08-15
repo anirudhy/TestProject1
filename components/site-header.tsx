@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { isSupabaseConfigured } from "@/lib/db/client";
+import { getAuthedProfile, isModeratorOrAdmin } from "@/lib/db/supabase-server";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 
 const links = [
   { href: "/companies", label: "Companies" },
@@ -7,7 +10,10 @@ const links = [
   { href: "/contribute", label: "Contribute" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const configured = isSupabaseConfigured();
+  const profile = configured ? await getAuthedProfile() : null;
+
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
@@ -20,6 +26,23 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          {isModeratorOrAdmin(profile) && (
+            <Link href="/admin/queue" className="text-muted-foreground transition-colors hover:text-foreground">
+              Queue
+            </Link>
+          )}
+          {!configured ? (
+            <span className="text-xs text-muted-foreground">Demo mode</span>
+          ) : profile ? (
+            <>
+              <span className="text-muted-foreground">{profile.handle}</span>
+              <SignOutButton />
+            </>
+          ) : (
+            <Link href="/sign-in" className="text-muted-foreground transition-colors hover:text-foreground">
+              Sign in
+            </Link>
+          )}
         </nav>
       </div>
     </header>

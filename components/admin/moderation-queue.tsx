@@ -27,9 +27,9 @@ function DiffRow({ label, before, after }: { label: string; before: unknown; aft
 
 function EditCard({ item, onDone }: { item: QueueEditItem; onDone: () => void }) {
   const { edit } = item;
-  const [reviewerId, setReviewerId] = useState("profile_demo_admin");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const proposedKeys = Object.keys(edit.proposed_value ?? {});
   const currentKeys = Object.keys(edit.current_value ?? {});
@@ -37,13 +37,19 @@ function EditCard({ item, onDone }: { item: QueueEditItem; onDone: () => void })
 
   async function act(action: "approve" | "reject") {
     setBusy(true);
+    setError(null);
     const res = await fetch(`/api/edits/${edit.id}/${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reviewerId, note }),
+      body: JSON.stringify({ note }),
     });
     setBusy(false);
-    if (res.ok) onDone();
+    if (res.ok) {
+      onDone();
+      return;
+    }
+    const data = await res.json().catch(() => ({}));
+    setError(data.error ?? "Something went wrong.");
   }
 
   return (
@@ -74,11 +80,9 @@ function EditCard({ item, onDone }: { item: QueueEditItem; onDone: () => void })
         )}
         {edit.rationale && <p className="mt-1 text-sm text-muted-foreground">&ldquo;{edit.rationale}&rdquo;</p>}
 
+        {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+
         <div className="mt-4 flex flex-wrap items-end gap-2 border-t border-border pt-3">
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Reviewer id</label>
-            <Input value={reviewerId} onChange={(e) => setReviewerId(e.target.value)} className="w-[220px]" />
-          </div>
           <div className="flex-1">
             <label className="mb-1 block text-xs text-muted-foreground">Note (optional)</label>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />

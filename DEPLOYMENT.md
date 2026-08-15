@@ -12,25 +12,32 @@ special configuration.
 3. To go live with real data rather than the in-memory demo dataset, also set
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and
    `SUPABASE_SERVICE_ROLE_KEY` — see the "Connecting a real Supabase project" section
-   of the README.
-4. Deploy. ISR (`revalidate = 3600` on company/benefit/calculator pages) works
+   of the README. This also turns on real auth (see below) — magic-link sign-in
+   only has something to authenticate against once these are set.
+4. In the Supabase dashboard, under Authentication → URL Configuration, add your
+   deployed origin (and `http://localhost:3000` for local dev) to the redirect
+   allow-list, e.g. `https://your-domain.example/auth/callback`. Magic links will
+   fail to redirect back without this.
+5. Deploy. ISR (`revalidate = 3600` on company/benefit/calculator pages) works
    out of the box on Vercel.
 
 ## Before this is production-ready
 
-This repo implements the MVP's UI, schema, and calculation logic, but two things
-called out in the build spec are intentionally not done here — don't flip this live
-without them:
+This repo implements the MVP's UI, schema, calculation logic, and auth — one thing
+called out in the build spec is intentionally still not done here:
 
-- **Auth.** Phase 0 calls for Supabase Auth (magic link). `/admin/queue` and the
-  edit approve/reject routes have no session check yet (see the comment in
-  `app/api/edits/[id]/approve/route.ts`). Wire up Supabase Auth, add a
-  `middleware.ts` that redirects unauthenticated/non-moderator users away from
-  `/admin/*`, and have the approve/reject routes read the reviewer's identity from
-  the session instead of the request body.
 - **Real seed data.** The shipped seed dataset is fictional (see
   `lib/seed/companies.ts` for why). Populate `benefit_types` (migration `0006`) and
   then research and cite real companies per `CONTRIBUTING.md` before launch.
+
+Auth itself is wired up (Supabase magic-link, session-derived identity on every
+write, role-gated `/admin/**` via `middleware.ts`) — see the README's "§9 open
+questions" and "what's real vs. what's a placeholder" sections for exactly what
+that does and doesn't cover. One manual step before anyone can moderate: promote
+at least one account to `moderator` or `admin` via the Supabase SQL editor —
+`update profiles set role = 'admin' where id = '<their auth.users id>'` — since
+there's no self-service role escalation UI (deliberately: that would let anyone
+approve their own edits).
 
 ## Supporting services (Sentry, PostHog, Resend)
 

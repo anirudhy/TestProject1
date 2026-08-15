@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { listCompaniesWithBenefits } from "@/lib/db/company-with-benefits";
 import { ContributeForm } from "@/components/contribute/contribute-form";
+import { Button } from "@/components/ui/button";
+import { isSupabaseConfigured } from "@/lib/db/client";
+import { currentContributorId } from "@/lib/db/supabase-server";
 
 export const metadata: Metadata = {
   title: "Contribute",
@@ -9,7 +13,8 @@ export const metadata: Metadata = {
 };
 
 export default async function ContributePage() {
-  const companies = await listCompaniesWithBenefits();
+  const [companies, contributorId] = await Promise.all([listCompaniesWithBenefits(), currentContributorId()]);
+  const requiresSignIn = isSupabaseConfigured() && !contributorId;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -19,9 +24,22 @@ export default async function ContributePage() {
         experience as an employee. Nothing goes live without moderator review.
       </p>
       <div className="mt-6">
-        <Suspense fallback={null}>
-          <ContributeForm companies={companies} />
-        </Suspense>
+        {requiresSignIn ? (
+          <div className="rounded-lg border border-border bg-card p-6 text-center">
+            <p className="font-medium">Sign in to contribute</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Browsing PerkStack is always open. Submitting or moderating data needs an account, so edits can be
+              traced back to a submitter.
+            </p>
+            <Button asChild className="mt-4">
+              <Link href={`/sign-in?next=/contribute`}>Sign in</Link>
+            </Button>
+          </div>
+        ) : (
+          <Suspense fallback={null}>
+            <ContributeForm companies={companies} />
+          </Suspense>
+        )}
       </div>
     </div>
   );

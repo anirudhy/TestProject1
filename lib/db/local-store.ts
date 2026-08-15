@@ -203,4 +203,8 @@ export const localStore = {
     }
     return p;
   },
+  /** The moderator identity used for approve/reject in demo mode — distinct from the contributor identity above. */
+  getDemoAdminProfile(): Profile {
+    return profiles.find((p) => p.id === "profile_demo_admin")!;
+  },
 };
