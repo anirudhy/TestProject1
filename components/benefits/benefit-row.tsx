@@ -51,7 +51,7 @@ export function BenefitRow({ type, benefit, companySlug }: { type: BenefitTypeDe
         ))}
       </dl>
 
-      {benefit.notes && <p className="mt-2 text-sm italic text-muted-foreground">"{benefit.notes}"</p>}
+      {benefit.notes && <p className="mt-2 text-sm italic text-muted-foreground">&ldquo;{benefit.notes}&rdquo;</p>}
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         {benefit.last_verified_at && <span>Last verified {formatDate(benefit.last_verified_at)}</span>}

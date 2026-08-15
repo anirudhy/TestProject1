@@ -15,6 +15,16 @@ export async function listPublishedCompanies(): Promise<Company[]> {
   return data as Company[];
 }
 
+export async function getCompanyById(companyId: string): Promise<Company | null> {
+  if (usingLocalStore()) return localStore.getCompanyById(companyId) ?? null;
+  // Admin/moderation contexts may need an unpublished company too, so this
+  // intentionally bypasses the is_published filter (service role only).
+  const sb = getServiceSupabaseClient() ?? getPublicSupabaseClient()!;
+  const { data, error } = await sb.from("companies").select("*").eq("id", companyId).maybeSingle();
+  if (error) throw error;
+  return (data as Company | null) ?? null;
+}
+
 export async function listAllCompanySlugs(): Promise<string[]> {
   if (usingLocalStore()) return localStore.listAllCompanySlugs();
   const sb = getPublicSupabaseClient()!;

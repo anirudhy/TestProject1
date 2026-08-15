@@ -16,7 +16,7 @@ export default async function CalculatorPage() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="text-2xl font-bold tracking-tight">Calculator</h1>
       <p className="mt-1 text-muted-foreground">
-        Enter your numbers once, then compare how much each company's benefits are actually worth.
+        Enter your numbers once, then compare how much each company&rsquo;s benefits are actually worth.
       </p>
       <div className="mt-6">
         <CalculatorClient companies={companies} />

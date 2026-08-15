@@ -43,7 +43,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="text-2xl font-bold tracking-tight">Compare</h1>
-      <p className="mt-1 text-muted-foreground">Pick 2–4 companies. The URL updates as you go, so it's shareable.</p>
+      <p className="mt-1 text-muted-foreground">Pick 2–4 companies. The URL updates as you go, so it&rsquo;s shareable.</p>
 
       <div className="mt-6">
         <ComparePicker allCompanies={allCompanies} selectedSlugs={companies.map((c) => c.company.slug)} />
@@ -59,8 +59,8 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
 
       {companies.length > 0 && (
         <p className="mt-6 text-xs text-muted-foreground">
-          Highlighted cells mark the best value in each row where an unambiguous comparison is possible. "Unknown"
-          means no sourced data exists yet — not that the benefit isn't offered.
+          Highlighted cells mark the best value in each row where an unambiguous comparison is possible.
+          &ldquo;Unknown&rdquo; means no sourced data exists yet — not that the benefit isn&rsquo;t offered.
         </p>
       )}
     </div>
