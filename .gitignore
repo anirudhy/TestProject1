@@ -1,5 +1,14 @@
 node_modules/
-*.log
+.next/
+out/
+build/
+dist/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.vercel
 .DS_Store
-localhost-key.pem
-localhost-cert.pem
+coverage/
+.supabase/
