@@ -61,6 +61,7 @@ export interface CompanyBenefit {
   company_id: string;
   benefit_key: string;
   plan_year: number;
+  country: string;
   value: Record<string, unknown>;
   notes: string | null;
   confidence: ConfidenceLevel;

@@ -56,6 +56,27 @@ here; see `lib/seed/companies.ts` for why.
 | `pnpm seed` | Seed a real Supabase project from `lib/seed/companies.ts` |
 | `pnpm seed:verify` | Report benefit fields not re-verified in 12+ months |
 
+## §9 open questions — resolved
+
+The build spec left four decisions open for before Phase 4. Resolved as follows,
+per the spec's own recommendation in each case:
+
+1. **Anonymous browsing vs. sign-in wall** — fully open browsing, no wall.
+   Everything under `/companies`, `/compare`, `/benefits`, `/calculator` renders
+   with no session. Sign-in is intended to gate `/contribute` and `/admin`
+   specifically — not yet enforced, since auth isn't wired up (see above).
+2. **International plan variants** — `company_benefits.country` added
+   (migration `0008_country_dimension.sql`), `text not null default 'US'`. Unused
+   beyond the default until non-US data exists.
+3. **Reputation → auto-approval threshold** — none. Every edit lands in
+   `benefit_edits` with `status = 'pending'`; there is no code path that flips a
+   row to `approved` without a moderator action, regardless of the submitter's
+   `reputation`.
+4. **Monetization** — deliberately not decided here. Both options the spec
+   raises (job board, sponsored profiles) trade against data neutrality, which
+   is the entire basis for user trust — that's a call for whoever owns the
+   product, not something to default into via scaffolding.
+
 ## Project layout
 
 ```
